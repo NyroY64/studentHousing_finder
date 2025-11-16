@@ -1,0 +1,44 @@
+name: Fac Habitat Scraper
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'  # Every 15 minutes
+  workflow_dispatch:  # Allow manual runs
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.13'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Run scraper
+      env:
+        EMAIL_ADDRESS: ${{ secrets.EMAIL_ADDRESS }}
+        EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+        RECIPIENT_ADDRESS: ${{ secrets.RECIPIENT_ADDRESS }}
+      run: python run_async_scraper.py
+    
+    - name: Upload database artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: residences-db
+        path: data/residences.db
+        retention-days: 7
+    
+    - name: Download previous database
+      uses: actions/download-artifact@v4
+      continue-on-error: true
+      with:
+        name: residences-db
+        path: data/
