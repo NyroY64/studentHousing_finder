@@ -18,11 +18,13 @@ jobs:
         python-version: '3.13'
     
     - name: Install dependencies
+      working-directory: fac_habitat_api
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
     
     - name: Run scraper
+      working-directory: fac_habitat_api
       env:
         EMAIL_ADDRESS: ${{ secrets.EMAIL_ADDRESS }}
         EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
@@ -33,7 +35,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: residences-db
-        path: data/residences.db
+        path: fac_habitat_api/data/residences.db
         retention-days: 7
     
     - name: Download previous database
@@ -41,4 +43,4 @@ jobs:
       continue-on-error: true
       with:
         name: residences-db
-        path: data/
+        path: fac_habitat_api/data/
